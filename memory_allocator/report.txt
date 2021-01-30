@@ -1,0 +1,71 @@
+Memory Allocator Report: Noah Lee and Justin Kwon
+
+1. Our hwx allocator ran the list test in 10 seconds with input size
+10,000. The optimized allocator got 0.2 seconds for the same input.
+For the ivec test, the hwx allocator used 10 seconds for 10,000 input.
+Our optimized allocator got .077 seconds.
+Our optimized allocator was faster by about a factor of 100.
++-----+-----+-----+
+|     | hwx | opt |
++-----+-----+-----+
+|       List      |
+|input|10000|10000|
+|time | 10s |0.2s |
++-----+-----+-----+
+|       ivec      |
+|input|10000|10000|
+|time | 10s |.077s|
++-----+-----+-----+
+
+2. The sys allocator ran the list test in 10 seconds with input size
+150,000. The optimized allocator got 6.4 seconds for the same input.
+For the ivec test, the sys allocator used 10 seconds for 500,000 input.
+Our optimized allocator got 5.6 seconds.
+Our optimized allocator was faster by about a factor of 2.
++-----+------+------+
+|     | sys  |  opt |
++-----+------+------+
+|       List        |
+|input|150000|150000|
+|time | 10s  | 6.4s |
++-----+------+------+
+|       ivec        |
+|input|500000|500000|
+|time | 10s  | 5.6s |
++-----+------+------+
+
+3. In our optimized allocator, we resorted to using a bucket
+data structure to hold large spans of memory for
+many small sizes. To deal with multithreading, 
+we made the bucket structure thread local, so each thread 
+got its own bucket data structure. For malloc requests larger
+than a page, we mmaped the memory directly.
+
+4. When memory is freed, we replace the memory with a struct that 
+contains that memory location and another pointer. This is akin
+to a free list of chunks that are all the same size. We hold the 
+head of the list in the span metadata. This makes malloc O(1), as
+we simply hand back the memory where the first struct is located,
+then pop it off. Free is also O(1), as we simply replace the
+memory in the given location with a new struct, then append it
+to the list.
+For entire spans of memory that have been freed, we place it onto
+a local free-list, so that the allocator can reuse the span for
+any size bucket. We did plan to also periodically push memory to
+a global free-list for further memory reuse, but we did not have
+enough time to implement this.
+
+5. We had a significant challenge in dealing with memory
+fragmentation. Our implementation was significantly complex,
+which means we were dealing with a ton of bugs regarding
+mapped memory and pointer arithmetic. As a result, we were
+not able to get the memory freeing functionality perfectly
+working.
+
+6. Yes, we would probably change to a slightly different design if
+given time. One of the main problems we experienced was with 
+ memory fragmentation. We think experimenting with a buddy
+system would simplify handling memory coalescing and reuse, which
+is beneficial.
+
+

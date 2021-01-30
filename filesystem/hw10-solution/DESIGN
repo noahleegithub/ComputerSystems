@@ -1,0 +1,12 @@
+
+File System Layout:
+
+  - 1MB = 256 pages (4k blocks)
+  - page 0 contains:
+    - 64 inodes (each 16 bytes)
+    - (offset 2048) a 256-byte free pages map (booleans; 1 byte per page)
+  - inode 1 = root directory
+  - the root directory is a packed sequence of
+    - filename (null terminated)
+    - inode#
+    - This allows for reasonably long filenames

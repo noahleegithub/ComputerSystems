@@ -1,0 +1,1 @@
+sort < tests/sample.txt

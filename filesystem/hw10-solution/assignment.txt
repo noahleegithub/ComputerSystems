@@ -1,0 +1,79 @@
+Spring 2018 Plan:
+
+ - Ch02a: Basic FS
+ - Ch02b: Advanced FS
+ - Ch02c: Transactional FS
+
+<p>In this assignment you will build a FUSE filesystem driver that will let you
+mount a 1MB disk image (data file) as a filesystem.
+
+<h2>Step 0: Install FUSE</h2>
+
+<p>For this assignment you will need to use your local Ubuntu 16.04 VM. You'll
+need to install the libfuse-dev package.
+
+<h2>Step 1: Implement a basic filesystem</h2>
+
+<p>You should extend the provided starter code so that it lets you do the following:
+
+<ul>
+  <li>Create files.
+  <li>List the files in the filesystem root directory (where you mounted it).
+  <li>Write to small files (under 4k).
+  <li>Read from small files (under 4k).
+  <li>Delete files.
+  <li>Rename files. 
+</ul>
+
+<p>This will require that you come up with a structure for how the file system
+will store data in it's 1MB "disk". See the filesystem slides - especially the
+original ext filesystem - for inspiration.
+
+<p>Some additional code that might be useful is provided in the "hints"
+directory in the assignment download. You can use this if you want. Using a
+block structure and mmap to access the filesystem image file as shown in the
+"pages.c" file is recommended.
+
+<h2>Step 2: Add missing functionality</h2>
+
+<p>Extend your filesystem to do more stuff:
+
+<ul>
+  <li>Create hard links - multiple names for the same file blocks.
+  <li>Read and write from files larger than one block. For example, you should be
+  able to support fifty 1k files or five 100k files.
+  <li>Create directories and nested directories. Directory depth should only be
+  limited by space.
+  <li>Remove directories.
+  <li>Support metadata (permissions and timestamps) for files and directories. 
+</ul>
+
+
+<p>Most of the grade weight is on Step 1 features, with less weight on Step 2 features.
+
+<p>The TAs will be manually testing your submission for requested functionality
+that isn't fully covered by the automated tests.
+
+<h2>To Submit</h2>
+
+<p>Submit your filesystem source code in a hw12 directory in a .tar.gz archive.
+
+<p>Don't submit your filesystem image data file or other binary files (run "make
+clean" before creating your tarball). Don't submit stray dotfiles.
+
+<h2>Hints & Tips</h2>
+
+<ul>
+  <li>The basic development / testing strategy for this assignment is to run
+  your program in one terminal window and try FS operations on the mounted
+  filesystem in another separate terminal window.
+  <li>Read the manual pages for the system calls you're implementing.
+  <li>To return an error from a FUSE callback, you return it as a negative number
+  (e.g. return -ENOENT). Some things don't work if you don't return the right error codes.
+  <li>Read and write, on success, return the number of bytes they actually read or wrote.
+  <li><b>You need to implement getattr early and make sure it's correct.</b> Nothing works
+  without getaddr. The mode for the root directory and hello.txt in the starter code are
+  good default values.
+  <li>The functions "dirname" and "basename" exist, but may mutate their argument.
+  <li>https://www.cs.hmc.edu/~geoff/classes/hmc.cs135.201109/homework/fuse/fuse_doc.html 
+</ul>
